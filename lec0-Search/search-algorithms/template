@@ -1,0 +1,17 @@
+frontier ← {初始节点}
+visited ← ∅
+
+循环：
+    如果 frontier 为空：
+        返回“无解”
+
+    从 frontier 取出一个节点 n
+
+    如果 n.state 是目标：
+        沿 parent 指针还原路径并返回
+
+    把 n.state 加入 visited
+
+    对 n 的每个后继节点 child：
+        如果 child.state 未被探索且不在 frontier：
+            加入 frontier
