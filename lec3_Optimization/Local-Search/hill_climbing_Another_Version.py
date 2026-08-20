@@ -1,8 +1,8 @@
 # 这一版不考虑“多个最优 neighbor 随机选一个”，同时做了更深层的抽象
-from .problem import HillClimbingProblem
+from .problem import LocalSearchProblem
 
 
-def hill_climb(problem: HillClimbingProblem, initial_state):
+def hill_climb(problem: LocalSearchProblem, initial_state):
     current = initial_state
 
     while True:
@@ -19,7 +19,7 @@ def hill_climb(problem: HillClimbingProblem, initial_state):
         current = neighbor
 
 
-def random_restart(problem: HillClimbingProblem, restarts):
+def random_restart(problem: LocalSearchProblem, restarts):
     best_state = None
 
     for _ in range(restarts):

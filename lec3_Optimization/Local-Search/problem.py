@@ -1,8 +1,9 @@
+import math
 import random
 from abc import ABC, abstractmethod
 
 
-class HillClimbingProblem(ABC):
+class LocalSearchProblem(ABC):
     """
     爬山问题的抽象接口。
     状态需要是可哈希的（因为部分爬山变种可能会用到 set 去重）。
@@ -11,26 +12,41 @@ class HillClimbingProblem(ABC):
     @abstractmethod
     def initial_state(self):
         """
-        返回（随机的）初始状态。
+        生成一个（随机的）初始状态
         """
         pass
 
     @abstractmethod
     def neighbors(self, state):
         """
-        返回 state 的所有邻居状态。
+        生成 state 的所有邻居
         """
         pass
 
     @abstractmethod
     def cost(self, state):
         """
-        返回 state 的代价（越小越好）。
+        返回 state 的代价
+        越小越好
         """
         pass
 
+    def random_neighbor(self, state):
+        """
+        随机选择一个邻居。
 
-class HospitalsProblem(HillClimbingProblem):
+        默认实现：先生成所有邻居，再随机选一个。
+        某些问题可以重写这个方法，提高效率。
+        """
+        candidates = list(self.neighbors(state))
+
+        if not candidates:
+            return None
+
+        return random.choice(candidates)
+
+
+class HospitalsProblem(LocalSearchProblem):
     """
     使用：
     problem = HospitalsProblem(
@@ -107,6 +123,83 @@ class HospitalsProblem(HillClimbingProblem):
             distance = min(abs(house[0] - hospital[0]) + abs(house[1] - hospital[1])
                 for hospital in hospitals)
 
+            total += distance
+
+        return total
+    
+    
+class TravelingSalesmanProblem(LocalSearchProblem):
+
+    def __init__(self, cities):
+        """
+        cities:
+
+        {
+            "A": (x1, y1),
+            "B": (x2, y2),
+            ...
+        }
+        """
+
+        if len(cities) < 2:
+            raise ValueError("TSP needs at least two cities")
+
+        self.cities = dict(cities)
+
+    def initial_state(self):
+        """
+        随机生成一条城市访问顺序
+        """
+
+        route = list(self.cities.keys())
+        random.shuffle(route)
+
+        return tuple(route)
+
+    def neighbors(self, state):
+        """
+        枚举所有：
+        交换任意两个城市后得到的路线
+        """
+
+        n = len(state)
+
+        for i in range(n - 1):
+            for j in range(i + 1, n):
+                route = list(state)
+                route[i], route[j] = (route[j], route[i])
+                yield tuple(route)
+
+    def random_neighbor(self, state):
+        """
+        模拟退火只需要随机一个邻居，
+        没必要先生成 O(n^2) 个邻居。
+        """
+
+        i, j = random.sample(range(len(state)), 2)
+        route = list(state)
+        route[i], route[j] = (route[j], route[i])
+
+        return tuple(route)
+
+    def cost(self, state):
+        """
+        计算整条旅行路线长度，
+        包括最后一个城市返回第一个城市。
+        """
+
+        total = 0.0
+        n = len(state)
+        for i in range(n):
+            city_a = state[i]
+
+            # 最后一个自动连回 state[0]
+            city_b = state[(i + 1) % n]
+
+            x1, y1 = self.cities[city_a]
+            x2, y2 = self.cities[city_b]
+
+            distance = math.hypot(x2 - x1, y2 - y1)
             total += distance
 
         return total

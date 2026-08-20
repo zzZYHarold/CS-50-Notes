@@ -1,8 +1,8 @@
 import random
-from .problem import HillClimbingProblem
+from .problem import LocalSearchProblem
 
 
-def hill_climb(problem: HillClimbingProblem):
+def hill_climb(problem: LocalSearchProblem):
     """
     随机爬山算法（Random Hill Climbing）。
     在当前状态的邻居中，选择代价最小的一个作为下一步，若多个邻居并列最优则随机选取。
@@ -41,17 +41,17 @@ def hill_climb(problem: HillClimbingProblem):
         best_cost = min(cost for cost, _ in costs)
 
         # 可能有多个同样好的邻居
-        best_neighbors = [state for state, cost in costs if cost == best_cost]
+        best_neighbors = [state for cost, state in costs if cost == best_cost]
 
         # 找不到更好的邻居：到达局部最优
         if best_cost >= problem.cost(current):
             return current
 
-        # 移动到最优邻居
+        # 移动到随机一个最优邻居
         current = random.choice(best_neighbors)
 
 
-def random_restart(problem: HillClimbingProblem, restarts):
+def random_restart(problem: LocalSearchProblem, restarts):
     """
     随机重启爬山算法（Random Restart Hill Climbing）。
     多次从随机初始状态运行基础爬山算法，记录所有运行结果中代价最小的状态，
@@ -66,7 +66,7 @@ def random_restart(problem: HillClimbingProblem, restarts):
                  - neighbors(state): 返回状态的所有邻居
                  - cost(state): 返回状态的代价（越小越好）
                  该对象也可以是一个元组 (initial_state, neighbors, cost)，
-                 但更推荐使用统一接口的对象（如 HillclimbingProblem 的子类）。
+                 但更推荐使用统一接口的对象（如 LocalSearchProblem 的子类）。
         restarts (int): 重启次数（即运行基础爬山算法的总次数）。
                         必须为正整数，否则函数可能无法产生有效结果。
 
